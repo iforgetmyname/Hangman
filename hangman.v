@@ -2,21 +2,23 @@ module hangman(
 	input CLOCK_50,
 	input PS2_DAT, PS2_CLK,
 	input [0:0] KEY,
-	input [0:0] SW,
+	input [3:0] SW,
 
 	output [9:0] LEDR,
 	output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4);
 	
+	wire clk, reset;
+	assign clk = CLOCK_50;
+	assign reset = ~KEY[0];
+
 	wire valid, makeBreak;
 	wire [7:0] outCode;
 	wire [4:0] outLetter;
 	wire [29:0] word;
 	wire [25:0] mask;
 	wire load;
-	wire reset;
 	reg [3:0] wrong_time;
 	assign load = (makeBreak == 1'b1);
-	assign reset = ~KEY[0];
 	assign LEDR[7] = load;
 	
 	keyboard_press_driver k0(
@@ -39,12 +41,16 @@ module hangman(
 		.outLetter(outLetter)
 		);
 	
+	wire win_game, lost_game;
+
 	level_select l0(
-		.clk(CLOCK_50),
+		.clk(clk),
 		.reset(reset),
 		
 		.start_game(((outLetter == 5'd26) && load)),
-		.lost_game(SW[0]),
+		.win_game(win_game),
+		.lost_game((wrong_time == 1'b0)),
+		.select(SW[3:0]),
 		
 		.word(word),
 		.mask(mask),
@@ -55,13 +61,14 @@ module hangman(
 	wire [25:0] state;
 	wire wrong;
 	game_state g0(
-		.clk(CLOCK_50),
+		.clk(clk),
 		.reset(reset),
 		.load(load),
 		.load_x(outLetter),
 		
 		.mask(mask),
 		
+		.win(win_game),
 		.wrong(wrong),
 		
 		.current_state(state)

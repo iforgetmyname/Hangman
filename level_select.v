@@ -1,9 +1,8 @@
 module level_select(
-	input clk,
-	input reset,
+	input clk, reset,
 	
-	input start_game,
-	input lost_game,
+	input start_game, win_game, lost_game,
+	input [3:0] select,
 	
 	output reg [29:0] word,
 	output reg [25:0] mask,
@@ -11,46 +10,41 @@ module level_select(
 	
 	reg [3:0] next_state;
 	
-	localparam LEVEL_1			= 4'd0,
-			   LEVEL_2			= 4'd1,
-			   LEVEL_3			= 4'd2,
-			   DEAD				= 4'd3;
+	localparam START	= 2'd0,
+			   INGAME	= 2'd1,
+			   WINGAME	= 2'd2,
+			   LOSTGAME	= 2'd3;
 
 	
 	always @(*) begin
-		case (current_state) 
-			LEVEL_1: next_state = lost_game ? DEAD : LEVEL_2;
-			LEVEL_2: next_state = lost_game ? DEAD : LEVEL_1;
-			DEAD: next_state = LEVEL_1;
-			default: next_state = LEVEL_1;
+		case (current_state)
+			START: next_state = start_game ? INGAME : START;
+			INGAME: begin
+						if (win_game)
+							next_state = WINGAME;
+						else if (lost_game)
+							next_state = LOSTGAME;
+						else
+							next_state = INGAME;
+					end
+			WINGAME: next_state = start_game ? START : WINGAME;
+			LOSTGAME: next_state = start_game ? START : LOSTGAME;
+			default: next_state = START;
 		endcase
 	end
 	
-	always @(*) begin
-		word <= 30'b0;
-		mask <= 26'b0;
-		
-		if (reset) begin
-			word <= 30'b0;
-			mask <= 26'b0;
-		end
-		else begin
-			case (current_state)
-				LEVEL_1: begin
-					word <= 30'b00101_01110_0011_00101_01100_10011;
-					mask <= 26'b1111_1110_1111_0101_1110_1011_11;
-				end
-			endcase
-		end
-	end
+	ram r0(
+		.address(select[3:0]),
+		.clock(clk),
+		.data(56'b0),
+		.wren(0),
+		.q({word, mask});
 	
-	always @(posedge clk) begin
+	always @(posedge clk)
+	begin
 		if (reset) 
-			current_state <= LEVEL_1;
-		else 
-			if (start_game)
-				current_state <= next_state;
-			else
-				current_state <= current_state;
+			current_state <= START;
+		else
+			current_state <= next_state;
 	end
 endmodule
