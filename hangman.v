@@ -5,7 +5,9 @@ module hangman(
 	input [3:0] SW,
 
 	output [9:0] LEDR,
-	output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4);
+	output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4,
+	output VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N,
+	output [9:0] VGA_R, VGA_G, VGA_B);
 	
 	wire clk, reset;
 	assign clk = CLOCK_50;
@@ -43,6 +45,8 @@ module hangman(
 	
 	wire win_game, lost_game;
 
+	wire [3:0] level_state;
+	assign LEDR[3:0] = level_state;
 	level_select l0(
 		.clk(clk),
 		.reset(reset),
@@ -55,7 +59,7 @@ module hangman(
 		.word(word),
 		.mask(mask),
 		
-		.current_state(LEDR[3:0])
+		.current_state(level_state)
 		);
 	
 	wire [25:0] state;
@@ -63,7 +67,7 @@ module hangman(
 	game_state g0(
 		.clk(clk),
 		.reset(reset),
-		.load(load),
+		.load(((level_state == 2'd1) && load)),
 		.load_x(outLetter),
 		
 		.mask(mask),
@@ -78,8 +82,23 @@ module hangman(
 		if (reset) 
 			wrong_time <= 4'd4;
 		else if(load)
-			wrong_time <= wrong_time - 1;
+			wrong_time <= wrong_time - 1'd1;
 	end
+	
+	vga v0(
+		.clk(clk),
+		.reset(reset),
+		.state(level_state[3:0]),
+		
+		.VGA_CLK(VGA_CLK),
+		.VGA_HS(VGA_HS),
+		.VGA_VS(VGA_VS),
+		.VGA_BLANK_N(VGA_BLANK_N),
+		.VGA_SYNC_N(VGA_SYNC_N),
+		.VGA_R(VGA_R[9:0]),
+		.VGA_B(VGA_B[9:0]),
+		.VGA_G(VGA_G[9:0])
+		);
 	
 	hex_decoder h0(
 		.hex_digit(outLetter[3:0]),
@@ -106,5 +125,3 @@ module hangman(
 		.segments(HEX4[6:0])
 		);
 endmodule
-		
-	
