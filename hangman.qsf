@@ -42,7 +42,7 @@ set_global_assignment -name DEVICE 5CSEMA5F31C6
 set_global_assignment -name TOP_LEVEL_ENTITY hangman
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 17.0.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:13:25  MARCH 25, 2019"
-set_global_assignment -name LAST_QUARTUS_VERSION "18.0.0 Standard Edition"
+set_global_assignment -name LAST_QUARTUS_VERSION "17.0.0 Lite Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
@@ -698,18 +698,21 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to HPS_USB_STP -entity 
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name VERILOG_FILE keyboard_driver/keyboard_scancoderaw_driver.v
+set_global_assignment -name VERILOG_FILE keyboard_driver/keyboard_press_driver.v
+set_global_assignment -name VERILOG_FILE keyboard_driver/keyboard_inner_driver.v
 set_global_assignment -name VERILOG_FILE vga_adapter/vga_pll.v
 set_global_assignment -name VERILOG_FILE vga_adapter/vga_controller.v
 set_global_assignment -name VERILOG_FILE vga_adapter/vga_address_translator.v
 set_global_assignment -name VERILOG_FILE vga_adapter/vga_adapter.v
-set_global_assignment -name VERILOG_FILE vga.v
-set_global_assignment -name VERILOG_FILE keyboard_driver/keyboard_scancoderaw_driver.v
-set_global_assignment -name VERILOG_FILE keyboard_driver/keyboard_press_driver.v
-set_global_assignment -name VERILOG_FILE keyboard_driver/keyboard_inner_driver.v
-set_global_assignment -name QIP_FILE ram.qip
-set_global_assignment -name VERILOG_FILE level_select.v
-set_global_assignment -name VERILOG_FILE hex_decoder.v
+set_global_assignment -name QIP_FILE letter_ram.qip
+set_global_assignment -name QIP_FILE word_ram.qip
+set_global_assignment -name VERILOG_FILE word_ram.v
 set_global_assignment -name VERILOG_FILE hangman.v
+set_global_assignment -name VERILOG_FILE hex_decoder.v
+set_global_assignment -name VERILOG_FILE vga.v
 set_global_assignment -name VERILOG_FILE game_state.v
-set_global_assignment -name VERILOG_FILE decoder.v
+set_global_assignment -name VERILOG_FILE level_select.v
+set_global_assignment -name VERILOG_FILE keyboard_handler.v
+set_global_assignment -name VERILOG_FILE letter_ram.v
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

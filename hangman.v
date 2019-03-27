@@ -10,38 +10,33 @@ module hangman(
 	output [9:0] VGA_R, VGA_G, VGA_B);
 	
 	wire clk, reset;
+	wire [3:0] word_select;
 	assign clk = CLOCK_50;
 	assign reset = ~KEY[0];
+	assign word_select[3:0] = SW[3:0];
 
-	wire valid, makeBreak;
-	wire [7:0] outCode;
-	wire [4:0] outLetter;
-	wire [29:0] word;
-	wire [25:0] mask;
 	wire load;
-	reg [3:0] wrong_time;
-	assign load = (makeBreak == 1'b1);
-	assign LEDR[7] = load;
-	
-	keyboard_press_driver k0(
-		.CLOCK_50(CLOCK_50),
-		.valid(valid),
-		.makeBreak(makeBreak),
-		.outCode(outCode),
-		
+	wire [4:0] pressedLetter;
+	keyboard_handler k0(
+		.clk(clk),
+		.reset(reset),
 		.PS2_DAT(PS2_DAT),
 		.PS2_CLK(PS2_CLK),
-		
-		.reset(reset)
-		);
-	
-	assign LEDR[9] = valid;
-	assign LEDR[8] = makeBreak;
 
-	decoder d0(
-		.inCode(outCode),
-		.outLetter(outLetter)
-		);
+		.pressed(load),
+		.inputLetter(pressedLetter[4:0])
+	);
+
+	wire [29:0] word;
+	wire [25:0] mask;
+	word_ram wr0(
+		.address(word_select[3:0]),
+		.clock(clk),
+		.data(56'd0),
+		.wren(1'b0),
+		.q({word[29:0], mask[25:0]})
+	);
+	reg [3:0] wrong_time;
 	
 	wire win_game, lost_game;
 
@@ -51,13 +46,9 @@ module hangman(
 		.clk(clk),
 		.reset(reset),
 		
-		.start_game(((outLetter == 5'd26) && load)),
+		.start_game(((pressedLetter == 5'd26) && load)),
 		.win_game(win_game),
 		.lost_game((wrong_time == 1'b0)),
-		.select(SW[3:0]),
-		
-		.word(word),
-		.mask(mask),
 		
 		.current_state(level_state)
 		);
@@ -68,7 +59,7 @@ module hangman(
 		.clk(clk),
 		.reset(reset),
 		.load(((level_state == 2'd1) && load)),
-		.load_x(outLetter),
+		.load_x(pressedLetter),
 		
 		.mask(mask),
 		
@@ -89,6 +80,8 @@ module hangman(
 		.clk(clk),
 		.reset(reset),
 		.state(level_state[3:0]),
+		.word(word),
+		.mask(state),
 		
 		.VGA_CLK(VGA_CLK),
 		.VGA_HS(VGA_HS),
@@ -101,12 +94,12 @@ module hangman(
 		);
 	
 	hex_decoder h0(
-		.hex_digit(outLetter[3:0]),
+		.hex_digit(pressedLetter[3:0]),
 		.segments(HEX0[6:0])
 		);
 	
 	hex_decoder h1(
-		.hex_digit({3'b000, outLetter[4:4]}),
+		.hex_digit({3'b000, pressedLetter[4]}),
 		.segments(HEX1[6:0])
 		);
 		
@@ -124,4 +117,6 @@ module hangman(
 		.hex_digit(wrong_time),
 		.segments(HEX4[6:0])
 		);
+	
+	assign LEDR[9] = load;
 endmodule
