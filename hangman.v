@@ -89,6 +89,8 @@ module hangman(
 		.clk(clk),
 		.reset(reset),
 		.state(level_state[3:0]),
+		.word(word),
+		.mask(state),
 		
 		.VGA_CLK(VGA_CLK),
 		.VGA_HS(VGA_HS),

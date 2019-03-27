@@ -1,13 +1,18 @@
 module vga(
 	input clk, reset,
 	input [3:0] state,
+	input [29:0] word,
+	input [25:0] mask,
 
 	output VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N,
 	output [9:0] VGA_R,	VGA_G, VGA_B);
 	
 	reg [2:0] colour;
-	reg [8:0] x;
-	reg [7:0] y;
+	reg [8:0] x, position_x;
+	reg [7:0] y, position_y;
+	reg [5:0] position;
+	reg [4:0] letter;
+	wire [63:0] letter_writeEn;
 	reg writeEn;
 
 	vga_adapter VGA(
@@ -30,6 +35,14 @@ module vga(
 	defparam VGA.MONOCHROME = "FALSE";
 	defparam VGA.BITS_PER_COLOUR_CHANNEL = 1;
 	defparam VGA.BACKGROUND_IMAGE = "init_vga.mif";
+
+	letter_ram lr0(
+		.address(letter),
+		.clock(clk),
+		.data(64'b0),
+		.wren(1'b0),
+		.q(letter_writeEn)
+	);
 
 	always @(posedge clk) begin
 		if (reset) begin
@@ -62,12 +75,135 @@ module vga(
 			end
 			INGAME: begin
 				colour = 3'b111;
-				writeEn = 1'b1;
+
+				// First letter
+				if ((x >= 9'd20) && (x <= 9'd27)) begin
+					// Letter
+					if ((y >= 8'd200) && (y <= 8'd207)) begin
+						letter = word[29:25];
+						position_x = x - 9'd20;
+						position_y = y - 8'd200;
+						position = {position_x[2:0], position_y[2:0]};
+						writeEn = (mask[letter] && letter_writeEn[position]);
+					end
+					// Dash
+					if ((y >= 8'd210) && (y <= 8'd217)) begin
+						letter = 5'd27;
+						position_x = x - 9'd20;
+						position_y = y - 8'd210;
+						position = {position_x[2:0], position_y[2:0]};
+						writeEn = (letter_writeEn[position]);
+					end
+				end
+
+				// Second letter
+				if ((x >= 9'd30) && (x <= 9'd37)) begin
+					// Letter
+					if ((y >= 8'd200) && (y <= 8'd207)) begin
+						letter = word[24:20];
+						position_x = x - 9'd30;
+						position_y = y - 8'd200;
+						position = {position_x[2:0], position_y[2:0]};
+						writeEn = (mask[letter] && letter_writeEn[position]);
+					end
+					// Dash
+					if ((y >= 8'd210) && (y <= 8'd217)) begin
+						letter = 5'd27;
+						position_x = x - 9'd30;
+						position_y = y - 8'd210;
+						position = {position_x[2:0], position_y[2:0]};
+						writeEn = (letter_writeEn[position]);
+					end
+				end
+
+				// Third letter
+				if ((x >= 9'd40) && (x <= 9'd47)) begin
+					// Letter
+					if ((y >= 8'd200) && (y <= 8'd207)) begin
+						letter = word[19:15];
+						position_x = x - 9'd40;
+						position_y = y - 8'd200;
+						position = {position_x[2:0], position_y[2:0]};
+						writeEn = (mask[letter] && letter_writeEn[position]);
+					end
+					// Dash
+					if ((y >= 8'd210) && (y <= 8'd217)) begin
+						letter = 5'd27;
+						position_x = x - 9'd40;
+						position_y = y - 8'd210;
+						position = {position_x[2:0], position_y[2:0]};
+						writeEn = (letter_writeEn[position]);
+					end
+				end
+
+				// Forth letter
+				if ((x >= 9'd50) && (x <= 9'd57)) begin
+					// Letter
+					if ((y >= 8'd200) && (y <= 8'd207)) begin
+						letter = word[14:10];
+						position_x = x - 9'd50;
+						position_y = y - 8'd200;
+						position = {position_x[2:0], position_y[2:0]};
+						writeEn = (mask[letter] && letter_writeEn[position]);
+					end
+					// Dash
+					if ((y >= 8'd210) && (y <= 8'd217)) begin
+						letter = 5'd27;
+						position_x = x - 9'd50;
+						position_y = y - 8'd210;
+						position = {position_x[2:0], position_y[2:0]};
+						writeEn = (letter_writeEn[position]);
+					end
+				end
+
+				// Fifth letter
+				if ((x >= 9'd60) && (x <= 9'd67)) begin
+					// Letter
+					if ((y >= 8'd200) && (y <= 8'd207)) begin
+						letter = word[9:5];
+						position_x = x - 9'd60;
+						position_y = y - 8'd200;
+						position = {position_x[2:0], position_y[2:0]};
+						writeEn = (mask[letter] && letter_writeEn[position]);
+					end
+					// Dash
+					if ((y >= 8'd210) && (y <= 8'd217)) begin
+						letter = 5'd27;
+						position_x = x - 9'd60;
+						position_y = y - 8'd210;
+						position = {position_x[2:0], position_y[2:0]};
+						writeEn = (letter_writeEn[position]);
+					end
+				end
+
+				// Sixth letter
+				if ((x >= 9'd70) && (x <= 9'd77)) begin
+					// Letter
+					if ((y >= 8'd200) && (y <= 8'd207)) begin
+						letter = word[4:0];
+						position_x = x - 9'd70;
+						position_y = y - 8'd200;
+						position = {position_x[2:0], position_y[2:0]};
+						writeEn = (mask[letter] && letter_writeEn[position]);
+					end
+					// Dash
+					if ((y >= 8'd210) && (y <= 8'd217)) begin
+						letter = 5'd27;
+						position_x = x - 9'd70;
+						position_y = y - 8'd210;
+						position = {position_x[2:0], position_y[2:0]};
+						writeEn = (letter_writeEn[position]);
+					end
+				end
 			end
 			WINGAME: writeEn = 1'b0;
 			LOSTGAME: writeEn = 1'b0;
 			default: begin
 				colour = 3'b000;
+				letter = 5'd27;
+				position_x = 9'd0;
+				position_y = 8'd0;
+				position = 6'd0;
 				writeEn = 1'b0;
 			end
 		endcase
