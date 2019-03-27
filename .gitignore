@@ -1,4 +1,5 @@
 c5_pin_model_dump.txt
+greybox_tmp/*
 db/*
 incremental_db/*
 simulation/*

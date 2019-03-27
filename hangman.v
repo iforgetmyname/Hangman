@@ -10,8 +10,10 @@ module hangman(
 	output [9:0] VGA_R, VGA_G, VGA_B);
 	
 	wire clk, reset;
+	wire [3:0] word_select;
 	assign clk = CLOCK_50;
 	assign reset = ~KEY[0];
+	assign word_select[3:0] = SW[3:0];
 
 	wire load;
 	wire [4:0] pressedLetter;
@@ -27,6 +29,13 @@ module hangman(
 
 	wire [29:0] word;
 	wire [25:0] mask;
+	word_ram wr0(
+		.address(word_select[3:0]),
+		.clock(clk),
+		.data(56'd0),
+		.wren(1'b0),
+		.q({word[29:0], mask[25:0]})
+	);
 	reg [3:0] wrong_time;
 	
 	wire win_game, lost_game;
@@ -40,10 +49,6 @@ module hangman(
 		.start_game(((pressedLetter == 5'd26) && load)),
 		.win_game(win_game),
 		.lost_game((wrong_time == 1'b0)),
-		.select(SW[3:0]),
-		
-		.word(word),
-		.mask(mask),
 		
 		.current_state(level_state)
 		);

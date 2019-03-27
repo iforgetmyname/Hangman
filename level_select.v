@@ -2,10 +2,7 @@ module level_select(
 	input clk, reset,
 	
 	input start_game, win_game, lost_game,
-	input [3:0] select,
-	
-	output [29:0] word,
-	output [25:0] mask,
+
 	output reg [3:0] current_state);
 	
 	reg [3:0] next_state;
@@ -32,14 +29,6 @@ module level_select(
 			default: next_state = START;
 		endcase
 	end
-	
-	ram r0(
-		.address(select[3:0]),
-		.clock(clk),
-		.data(56'b0),
-		.wren(1'b0),
-		.q({word, mask})
-		);
 
 	always @(posedge clk)
 	begin
