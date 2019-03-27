@@ -1,18 +1,17 @@
-module level_select(
+module game_status(
 	input clk, reset,
-	
 	input start_game, win_game, lost_game,
 
-	output reg [3:0] current_state);
-	
-	reg [3:0] next_state;
-	
+	output reg [1:0] current_state
+);
+
 	localparam START	= 2'd0,
 			   INGAME	= 2'd1,
 			   WINGAME	= 2'd2,
 			   LOSTGAME	= 2'd3;
 
-	
+	reg [1:0] next_state;
+
 	always @(*) begin
 		case (current_state)
 			START: next_state = start_game ? INGAME : START;
@@ -37,4 +36,5 @@ module level_select(
 		else
 			current_state <= next_state;
 	end
+
 endmodule

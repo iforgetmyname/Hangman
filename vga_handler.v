@@ -1,12 +1,13 @@
-module vga(
+module vga_handler(
 	input clk, reset,
-	input [3:0] state,
+	input [1:0] game_state,
 	input [29:0] word,
 	input [25:0] mask,
 
 	output VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N,
-	output [9:0] VGA_R,	VGA_G, VGA_B);
-	
+	output [9:0] VGA_R,	VGA_G, VGA_B
+);
+
 	reg [2:0] colour;
 	reg [8:0] x, position_x;
 	reg [7:0] y, position_y;
@@ -37,11 +38,11 @@ module vga(
 	defparam VGA.BACKGROUND_IMAGE = "init_vga.mif";
 
 	letter_ram lr0(
-		.address(letter),
+		.address(letter[4:0]),
 		.clock(clk),
 		.data(64'b0),
 		.wren(1'b0),
-		.q(letter_writeEn)
+		.q(letter_writeEn[63:0])
 	);
 
 	always @(posedge clk) begin
@@ -62,13 +63,13 @@ module vga(
 		end
 	end
 
-    localparam START	= 2'd0,
+	localparam START	= 2'd0,
 			   INGAME	= 2'd1,
 			   WINGAME	= 2'd2,
 			   LOSTGAME	= 2'd3;
 	
 	always @(*) begin
-		case (state)
+		case (game_state)
 			START: begin
 				colour = 3'b000;
 				writeEn = 1'b1;

@@ -1,21 +1,22 @@
-module game_state(
-    input clk, reset, load,
-    input [4:0] load_x,
-    input [25:0] mask,
+module game_process(
+	input clk, reset,
+	input load,
+	input [4:0] load_x,
+	input [25:0] mask,
 
 	output reg win, wrong,
-    output reg [25:0] current_state);
+	output reg [25:0] current_state
+);
 
-    reg [25:0] next_state;
-	
+	reg [25:0] next_state;
+
 	always @(posedge clk) begin
 		if (reset) begin
 			current_state <= 26'b0;
 			next_state <= 26'b0;
 			wrong <= 1'b0;
 		end
-		else
-		begin
+		else begin
 			next_state <= current_state;
 			if (load) begin
 				next_state[load_x] = 1'b1;
@@ -25,4 +26,5 @@ module game_state(
 			end
 		end
 	end
+
 endmodule
