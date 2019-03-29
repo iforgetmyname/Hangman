@@ -68,144 +68,101 @@ module vga_handler(
 			   WINGAME	= 2'd2,
 			   LOSTGAME	= 2'd3;
 	
-	always @(*) begin
+	always @(posedge clk) begin
 		case (game_state)
 			START: begin
-				colour = 3'b000;
-				writeEn = 1'b1;
+				colour <= 3'b000;
+				writeEn <= 1'b1;
 			end
 			INGAME: begin
-				colour = 3'b111;
+				colour <= 3'b111;
+				writeEn <= 1'b0;
 
 				// First letter
 				if ((x >= 9'd20) && (x <= 9'd27)) begin
-					// Letter
-					if ((y >= 8'd200) && (y <= 8'd207)) begin
-						letter = word[29:25];
-						position_x = x - 9'd20;
-						position_y = y - 8'd200;
-						position = {position_x[2:0], position_y[2:0]};
-						writeEn = (mask[letter] && letter_writeEn[position]);
-					end
-					// Dash
-					if ((y >= 8'd210) && (y <= 8'd217)) begin
-						letter = 5'd27;
-						position_x = x - 9'd20;
-						position_y = y - 8'd210;
-						position = {position_x[2:0], position_y[2:0]};
-						writeEn = (letter_writeEn[position]);
+					if ((y >= 8'd20) && (y <= 8'd27)) begin
+						letter <= 5'd26;
+						position_x <= x - 9'd20;
+						position_y <= y - 8'd20;
+						position <= {position_y[2:0], position_x[2:0]};
+						writeEn <= (letter_writeEn[position]);
 					end
 				end
 
 				// Second letter
-				if ((x >= 9'd30) && (x <= 9'd37)) begin
-					// Letter
-					if ((y >= 8'd200) && (y <= 8'd207)) begin
-						letter = word[24:20];
-						position_x = x - 9'd30;
-						position_y = y - 8'd200;
-						position = {position_x[2:0], position_y[2:0]};
-						writeEn = (mask[letter] && letter_writeEn[position]);
-					end
+				if ((x >= 9'd50) && (x <= 9'd57)) begin
+
 					// Dash
-					if ((y >= 8'd210) && (y <= 8'd217)) begin
-						letter = 5'd27;
-						position_x = x - 9'd30;
-						position_y = y - 8'd210;
-						position = {position_x[2:0], position_y[2:0]};
-						writeEn = (letter_writeEn[position]);
+					if ((y >= 8'd50) && (y <= 8'd57)) begin
+						letter <= 5'd26;
+						position_x <= x - 9'd50;
+						position_y <= y - 8'd50;
+						position <= {position_y[2:0], position_x[2:0]};
+						writeEn <= (letter_writeEn[position]);
 					end
 				end
 
 				// Third letter
-				if ((x >= 9'd40) && (x <= 9'd47)) begin
-					// Letter
-					if ((y >= 8'd200) && (y <= 8'd207)) begin
-						letter = word[19:15];
-						position_x = x - 9'd40;
-						position_y = y - 8'd200;
-						position = {position_x[2:0], position_y[2:0]};
-						writeEn = (mask[letter] && letter_writeEn[position]);
-					end
+				if ((x >= 9'd80) && (x <= 9'd87)) begin
+
 					// Dash
-					if ((y >= 8'd210) && (y <= 8'd217)) begin
-						letter = 5'd27;
-						position_x = x - 9'd40;
-						position_y = y - 8'd210;
-						position = {position_x[2:0], position_y[2:0]};
-						writeEn = (letter_writeEn[position]);
+					if ((y >= 8'd80) && (y <= 8'd87)) begin
+						letter <= 5'd26;
+						position_x <= x - 9'd80;
+						position_y <= y - 8'd80;
+						position <= {position_y[2:0], position_x[2:0]};
+						writeEn <= (letter_writeEn[position]);
 					end
 				end
 
 				// Forth letter
-				if ((x >= 9'd50) && (x <= 9'd57)) begin
-					// Letter
-					if ((y >= 8'd200) && (y <= 8'd207)) begin
-						letter = word[14:10];
-						position_x = x - 9'd50;
-						position_y = y - 8'd200;
-						position = {position_x[2:0], position_y[2:0]};
-						writeEn = (mask[letter] && letter_writeEn[position]);
-					end
+				if ((x >= 9'd100) && (x <= 9'd107)) begin
+
 					// Dash
-					if ((y >= 8'd210) && (y <= 8'd217)) begin
-						letter = 5'd27;
-						position_x = x - 9'd50;
-						position_y = y - 8'd210;
-						position = {position_x[2:0], position_y[2:0]};
-						writeEn = (letter_writeEn[position]);
+					if ((y >= 8'd100) && (y <= 8'd107)) begin
+						letter <= 5'd26;
+						position_x <= x - 9'd100;
+						position_y <= y - 8'd100;
+						position <= {position_y[2:0], position_x[2:0]};
+						writeEn <= (letter_writeEn[position]);
 					end
 				end
 
 				// Fifth letter
-				if ((x >= 9'd60) && (x <= 9'd67)) begin
-					// Letter
-					if ((y >= 8'd200) && (y <= 8'd207)) begin
-						letter = word[9:5];
-						position_x = x - 9'd60;
-						position_y = y - 8'd200;
-						position = {position_x[2:0], position_y[2:0]};
-						writeEn = (mask[letter] && letter_writeEn[position]);
-					end
+				if ((x >= 9'd130) && (x <= 9'd137)) begin
+
 					// Dash
-					if ((y >= 8'd210) && (y <= 8'd217)) begin
-						letter = 5'd27;
-						position_x = x - 9'd60;
-						position_y = y - 8'd210;
-						position = {position_x[2:0], position_y[2:0]};
-						writeEn = (letter_writeEn[position]);
+					if ((y >= 8'd130) && (y <= 8'd137)) begin
+						letter <= 5'd26;
+						position_x <= x - 9'd130;
+						position_y <= y - 8'd130;
+						position <= {position_y[2:0], position_x[2:0]};
+						writeEn <= (letter_writeEn[position]);
 					end
 				end
 
 				// Sixth letter
-				if ((x >= 9'd70) && (x <= 9'd77)) begin
-					// Letter
-					if ((y >= 8'd200) && (y <= 8'd207)) begin
-						letter = word[4:0];
-						position_x = x - 9'd70;
-						position_y = y - 8'd200;
-						position = {position_x[2:0], position_y[2:0]};
-						writeEn = (mask[letter] && letter_writeEn[position]);
-					end
+				if ((x >= 9'd160) && (x <= 9'd167)) begin
+
 					// Dash
-					if ((y >= 8'd210) && (y <= 8'd217)) begin
-						letter = 5'd27;
-						position_x = x - 9'd70;
-						position_y = y - 8'd210;
-						position = {position_x[2:0], position_y[2:0]};
-						writeEn = (letter_writeEn[position]);
+					if ((y >= 8'd160) && (y <= 8'd167)) begin
+						letter <= 5'd26;
+						position_x <= x - 9'd160;
+						position_y <= y - 8'd160;
+						position <= {position_y[2:0], position_x[2:0]};
+						writeEn <= (letter_writeEn[position]);
 					end
 				end
 			end
-			WINGAME: writeEn = 1'b0;
-			LOSTGAME: writeEn = 1'b0;
+			WINGAME: writeEn <= 1'b0;
+			LOSTGAME: writeEn <= 1'b0;
 			default: begin
-				colour = 3'b000;
-				letter = 5'd27;
-				position_x = 9'd0;
-				position_y = 8'd0;
-				position = 6'd0;
-				writeEn = 1'b0;
+				colour <= 3'b000;
+				letter <= 5'd27;
+				position_x <= 9'd0;
+				position_y <= 8'd0;
+				position <= 6'd0;
+				writeEn <= 1'b0;
 			end
 		endcase
 	end

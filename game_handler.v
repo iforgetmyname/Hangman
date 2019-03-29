@@ -4,7 +4,7 @@ module game_handler(
 	input [4:0] load_x,
 	input [25:0] mask,
 
-	output reg [25:0] guessed_mask,
+	output [25:0] guessed_mask,
 	output [1:0] game_state,
 	output reg [3:0] wrong_time
 );
@@ -16,7 +16,7 @@ module game_handler(
 
 	wire win, wrong;
 
-	always(@negedge wrong, posedge reset) begin
+	always @(negedge wrong, posedge reset) begin
 		if (reset)
 			wrong_time <= 4'd10;
 		else if (load)
@@ -29,7 +29,7 @@ module game_handler(
 
 		.start_game((load_x[4:0] == 5'd26) && load),
 		.win_game(win),
-		.lost_game(wrong_time[4:0] == 1'd0),
+		.lost_game(wrong_time[3:0] == 1'd0),
 
 		.current_state(game_state[1:0])
 	);
