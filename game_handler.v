@@ -26,7 +26,7 @@ module game_handler(
 
 	always @(negedge wrong, posedge reset, posedge start_reset) begin
 		if (reset || start_reset)
-			wrong_time <= 4'd4;
+			wrong_time <= 4'd5;
 		else if (load)
 			wrong_time <= wrong_time - 1'd1;
 	end
@@ -52,7 +52,7 @@ module game_handler(
 
 		.win(win),
 		.wrong(wrong),
-		.current_state(guessed_mask[25:0])
+		.current_mask(guessed_mask[25:0])
 	);
 
 endmodule

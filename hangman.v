@@ -5,7 +5,7 @@ module hangman(
 	input [3:0] SW,
 
 	output [9:0] LEDR,
-	output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4,
+	output [6:0] HEX0,
 	output VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N,
 	output [9:0] VGA_R, VGA_G, VGA_B
 );
@@ -76,18 +76,8 @@ module hangman(
 	);
 
 	hex_decoder h0(
-		.hex_digit(pressedLetter[3:0]),
-		.segments(HEX0[6:0])
-	);
-
-	hex_decoder h1(
-		.hex_digit({3'b000, pressedLetter[4]}),
-		.segments(HEX1[6:0])
-	);
-
-	hex_decoder h4(
 		.hex_digit(wrong_time[3:0]),
-		.segments(HEX4[6:0])
+		.segments(HEX0[6:0])
 	);
 
 	assign LEDR[1:0] = game_state[1:0];
