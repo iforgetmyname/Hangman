@@ -15,10 +15,18 @@ module game_handler(
 			   LOSTGAME	= 2'd3;
 
 	wire win, wrong;
+	reg start_reset;
+	
+	always @(game_state[1:0]) begin
+		if (game_state == START) 
+			start_reset <= 1'b1;
+		else 
+			start_reset <= 1'b0;
+	end
 
-	always @(negedge wrong, posedge reset) begin
-		if (reset)
-			wrong_time <= 4'd10;
+	always @(negedge wrong, posedge reset, posedge start_reset) begin
+		if (reset || start_reset)
+			wrong_time <= 4'd4;
 		else if (load)
 			wrong_time <= wrong_time - 1'd1;
 	end
@@ -36,7 +44,7 @@ module game_handler(
 
 	game_process process0(
 		.clk(clk),
-		.reset(reset),
+		.reset(reset || start_reset),
 
 		.load(((game_state[1:0] == INGAME) && load)),
 		.load_x(load_x[4:0]),

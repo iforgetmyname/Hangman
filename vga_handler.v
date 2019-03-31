@@ -3,25 +3,26 @@ module vga_handler(
 	input [1:0] game_state,
 	input [29:0] word,
 	input [25:0] mask,
+	input [3:0] wrong_time,
 
 	output VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N,
 	output [9:0] VGA_R,	VGA_G, VGA_B
 );
 
-	reg [2:0] colour;
-	reg [8:0] x, position_x;
-	reg [7:0] y, position_y;
+	reg [2:0] colour, colour_in;
+	reg [8:0] x, x_in, x_tmp, position_x;
+	reg [7:0] y, y_in, y_tmp, position_y;
 	reg [5:0] position;
-	reg [4:0] letter;
+	reg [5:0] letter;
 	wire [63:0] letter_writeEn;
 	reg writeEn;
 
 	vga_adapter VGA(
 		.resetn(~reset),
 		.clock(clk),
-		.colour(colour),
-		.x(x),
-		.y(y),
+		.colour(colour_in),
+		.x(x_in),
+		.y(y_in),
 		.plot(writeEn),
 
 		.VGA_R(VGA_R),
@@ -38,7 +39,7 @@ module vga_handler(
 	defparam VGA.BACKGROUND_IMAGE = "init_vga.mif";
 
 	letter_ram lr0(
-		.address(letter[4:0]),
+		.address(letter[5:0]),
 		.clock(clk),
 		.data(64'b0),
 		.wren(1'b0),
@@ -68,103 +69,187 @@ module vga_handler(
 			   WINGAME	= 2'd2,
 			   LOSTGAME	= 2'd3;
 	
-	always @(posedge clk) begin
+	always @(*) begin
 		case (game_state)
 			START: begin
-				colour <= 3'b000;
-				writeEn <= 1'b1;
+				colour = 3'b000;
+				letter = 6'd35;
+				position = 6'd0;
 			end
 			INGAME: begin
-				colour <= 3'b111;
-				writeEn <= 1'b0;
+				colour = 3'b111;
+				letter = 6'd35;
+				position = 6'd0;
 
 				// First letter
-				if ((x >= 9'd20) && (x <= 9'd27)) begin
-					if ((y >= 8'd20) && (y <= 8'd27)) begin
-						letter <= 5'd26;
-						position_x <= x - 9'd20;
-						position_y <= y - 8'd20;
-						position <= {position_y[2:0], position_x[2:0]};
-						writeEn <= (letter_writeEn[position]);
+				if ((x >= 9'd25) && (x <= 9'd32)) begin
+					// Letter
+					if ((y >= 8'd190) && (y <= 8'd197)) begin
+						letter = {1'b0, word[29:25]} - 6'd1;
+						if (mask[letter[5:0]]) begin
+							position_x = x - 9'd25;
+							position_y = 8'd197 - y;
+							position = {position_y[2:0], position_x[2:0]};
+						end else
+							letter = 6'd35;
+					end
+					// Dash
+					if ((y >= 8'd200) && (y <= 8'd207)) begin
+						letter = 6'd26;
+						position_x = x - 9'd25;
+						position_y = 8'd207 - y;
+						position = {position_y[2:0], position_x[2:0]};
+
 					end
 				end
 
 				// Second letter
-				if ((x >= 9'd50) && (x <= 9'd57)) begin
-
+				if ((x >= 9'd65) && (x <= 9'd72)) begin
+					// Letter
+					if ((y >= 8'd190) && (y <= 8'd197)) begin
+						letter = {1'b0, word[24:20]} - 6'd1;
+						if (mask[letter[5:0]]) begin
+							position_x = x - 9'd65;
+							position_y = 8'd197 - y;
+							position = {position_y[2:0], position_x[2:0]};
+						end else
+							letter = 6'd35;
+					end
 					// Dash
-					if ((y >= 8'd50) && (y <= 8'd57)) begin
-						letter <= 5'd26;
-						position_x <= x - 9'd50;
-						position_y <= y - 8'd50;
-						position <= {position_y[2:0], position_x[2:0]};
-						writeEn <= (letter_writeEn[position]);
+					if ((y >= 8'd200) && (y <= 8'd207)) begin
+						letter = 6'd26;
+						position_x = x - 9'd65;
+						position_y = 8'd207 - y;
+						position = {position_y[2:0], position_x[2:0]};
 					end
 				end
 
 				// Third letter
-				if ((x >= 9'd80) && (x <= 9'd87)) begin
-
+				if ((x >= 9'd105) && (x <= 9'd112)) begin
+					// Letter
+					if ((y >= 8'd190) && (y <= 8'd197)) begin
+						letter = {1'b0, word[19:15]} - 6'd1;
+						if (mask[letter[5:0]]) begin
+							position_x = x - 9'd105;
+							position_y = 8'd197 - y;
+							position = {position_y[2:0], position_x[2:0]};
+						end else
+							letter = 6'd35;
+					end
 					// Dash
-					if ((y >= 8'd80) && (y <= 8'd87)) begin
-						letter <= 5'd26;
-						position_x <= x - 9'd80;
-						position_y <= y - 8'd80;
-						position <= {position_y[2:0], position_x[2:0]};
-						writeEn <= (letter_writeEn[position]);
+					if ((y >= 8'd200) && (y <= 8'd207)) begin
+						letter = 6'd26;
+						position_x = x - 9'd105;
+						position_y = 8'd207 - y;
+						position = {position_y[2:0], position_x[2:0]};
 					end
 				end
 
 				// Forth letter
-				if ((x >= 9'd100) && (x <= 9'd107)) begin
-
+				if ((x >= 9'd145) && (x <= 9'd152)) begin
+					// Letter
+					if ((y >= 8'd190) && (y <= 8'd197)) begin
+						letter = {1'b0, word[14:10]} - 6'd1;
+						if (mask[letter[5:0]]) begin
+							position_x = x - 9'd145;
+							position_y = 8'd197 - y;
+							position = {position_y[2:0], position_x[2:0]};
+						end else
+							letter = 6'd35;
+					end
 					// Dash
-					if ((y >= 8'd100) && (y <= 8'd107)) begin
-						letter <= 5'd26;
-						position_x <= x - 9'd100;
-						position_y <= y - 8'd100;
-						position <= {position_y[2:0], position_x[2:0]};
-						writeEn <= (letter_writeEn[position]);
+					if ((y >= 8'd200) && (y <= 8'd207)) begin
+						letter = 6'd26;
+						position_x = x - 9'd145;
+						position_y = 8'd207 - y;
+						position = {position_y[2:0], position_x[2:0]};
 					end
 				end
 
 				// Fifth letter
-				if ((x >= 9'd130) && (x <= 9'd137)) begin
-
+				if ((x >= 9'd185) && (x <= 9'd192)) begin
+					// Letter
+					if ((y >= 8'd190) && (y <= 8'd197)) begin
+						letter = {1'b0, word[9:5]} - 6'd1;
+						if (mask[letter[5:0]]) begin
+							position_x = x - 9'd185;
+							position_y = 8'd197 - y;
+							position = {position_y[2:0], position_x[2:0]};
+						end else
+							letter = 6'd35;
+					end
 					// Dash
-					if ((y >= 8'd130) && (y <= 8'd137)) begin
-						letter <= 5'd26;
-						position_x <= x - 9'd130;
-						position_y <= y - 8'd130;
-						position <= {position_y[2:0], position_x[2:0]};
-						writeEn <= (letter_writeEn[position]);
+					if ((y >= 8'd200) && (y <= 8'd207)) begin
+						letter = 6'd26;
+						position_x = x - 9'd185;
+						position_y = 8'd207 - y;
+						position = {position_y[2:0], position_x[2:0]};
 					end
 				end
 
 				// Sixth letter
-				if ((x >= 9'd160) && (x <= 9'd167)) begin
-
+				if ((x >= 9'd225) && (x <= 9'd232)) begin
+					// Letter
+					if ((y >= 8'd190) && (y <= 8'd197)) begin
+						letter = {1'b0, word[4:0]} - 6'd1;
+						if (mask[letter[5:0]]) begin
+							position_x = x - 9'd225;
+							position_y = 8'd197 - y;
+							position = {position_y[2:0], position_x[2:0]};
+						end else
+							letter = 6'd35;
+					end
 					// Dash
-					if ((y >= 8'd160) && (y <= 8'd167)) begin
-						letter <= 5'd26;
-						position_x <= x - 9'd160;
-						position_y <= y - 8'd160;
-						position <= {position_y[2:0], position_x[2:0]};
-						writeEn <= (letter_writeEn[position]);
+					if ((y >= 8'd200) && (y <= 8'd207)) begin
+						letter = 6'd26;
+						position_x = x - 9'd225;
+						position_y = 8'd207 - y;
+						position = {position_y[2:0], position_x[2:0]};
 					end
 				end
-			end
-			WINGAME: writeEn <= 1'b0;
-			LOSTGAME: writeEn <= 1'b0;
-			default: begin
-				colour <= 3'b000;
-				letter <= 5'd27;
-				position_x <= 9'd0;
-				position_y <= 8'd0;
-				position <= 6'd0;
-				writeEn <= 1'b0;
+
+				// The poor man
+				if ((x >= 9'd140) && (x <= 9'd147)) begin
+					// Head
+					if ((y >= 8'd92) && (y <= 8'd99)) begin
+						letter = 6'd29;
+						position_x = x - 9'd140;
+						position_y = 8'd99 - y;
+						position = {position_y[2:0], position_x[2:0]};
+					end
+					// Body
+					if ((y >= 8'd100) && (y <= 8'd107)) begin
+						letter = 6'd30 + {2'b00, wrong_time[3:0]};
+						position_x = x - 9'd140;
+						position_y = 8'd107 - y;
+						position = {position_y[2:0], position_x[2:0]};
+					end
+				end
+						
 			end
 		endcase
+	end
+
+	always @(posedge clk) begin
+		if (reset) begin
+			x_in <= 9'b0;
+			x_tmp <= 9'b0;
+			y_in <= 8'b0;
+			y_tmp <= 9'b0;
+			colour_in <= 3'b000;
+			writeEn <= 1'b1;
+		end
+		else begin
+			x_tmp <= x;
+			y_tmp <= y;
+			x_in <= x_tmp;
+			y_in <= y_tmp;
+			writeEn <= 1'b1;
+			if (letter < 6'd35)
+				colour_in <= (letter_writeEn[position]) ? 3'b111 : 3'b000;
+			else
+				colour_in <= 3'b000;
+		end
 	end
 
 endmodule

@@ -708,7 +708,6 @@ set_global_assignment -name VERILOG_FILE keyboard_driver/keyboard_inner_driver.v
 set_global_assignment -name QIP_FILE word_ram.qip
 set_global_assignment -name QIP_FILE letter_ram.qip
 set_global_assignment -name VERILOG_FILE vga_handler.v
-set_global_assignment -name VERILOG_FILE letter_ram.v
 set_global_assignment -name VERILOG_FILE keyboard_handler.v
 set_global_assignment -name VERILOG_FILE hex_decoder.v
 set_global_assignment -name VERILOG_FILE hangman.v

@@ -63,6 +63,7 @@ module hangman(
 		.game_state(game_state[1:0]),
 		.word(word[29:0]),
 		.mask(guessed_mask[25:0]),
+		.wrong_time(wrong_time[3:0]),
 		
 		.VGA_CLK(VGA_CLK),
 		.VGA_HS(VGA_HS),
