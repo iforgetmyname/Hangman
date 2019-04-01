@@ -2,14 +2,15 @@ module vga_handler(
 	input clk, reset,
 	input [1:0] game_state,
 	input [29:0] word,
-	input [25:0] mask,
+	input [25:0] mask, guessed_mask,
+	input wrong,
 	input [3:0] wrong_time,
 
 	output VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N,
 	output [9:0] VGA_R, VGA_G, VGA_B
 );
 
-	reg [2:0] colour, colour_in, random_num;
+	reg [2:0] colour, colour_in;
 	reg [8:0] x, x_in, position_x;
 	reg [7:0] y, y_in, position_y;
 	reg [5:0] position;
@@ -64,13 +65,6 @@ module vga_handler(
 		end
 	end
 
-	always @(posedge clk) begin
-		if (reset)
-			random_num <= {x[0], 1'b1, y[1]};
-		else
-			random_num <= random_num + 1;
-	end
-
 	localparam START	= 2'd0,
 			   INGAME	= 2'd1,
 			   WINGAME	= 2'd2,
@@ -84,6 +78,7 @@ module vga_handler(
 		position = 6'd0;
 		writeEn = 1'b0;
 
+		// Hangman title, always on
 		// H
 		if (((x >= 9'd29) && (x <= 9'd37)) && ((y >= 8'd10) && (y <= 8'd17))) begin
 			letter = 6'd7;
@@ -91,7 +86,7 @@ module vga_handler(
 				position_x = x - 9'd30;
 				position_y = 8'd17 - y;
 				position = {position_y[2:0], position_x[2:0]};
-				colour = random_num;
+				colour = 3'b111;
 				writeEn = 1'b1;
 			end
 		end
@@ -103,7 +98,7 @@ module vga_handler(
 				position_x = x - 9'd40;
 				position_y = 8'd17 - y;
 				position = {position_y[2:0], position_x[2:0]};
-				colour = random_num;
+				colour = 3'b111;
 				writeEn = 1'b1;
 			end
 		end
@@ -115,7 +110,7 @@ module vga_handler(
 				position_x = x - 9'd50;
 				position_y = 8'd17 - y;
 				position = {position_y[2:0], position_x[2:0]};
-				colour = random_num;
+				colour = 3'b111;
 				writeEn = 1'b1;
 			end
 		end
@@ -127,7 +122,7 @@ module vga_handler(
 				position_x = x - 9'd60;
 				position_y = 8'd17 - y;
 				position = {position_y[2:0], position_x[2:0]};
-				colour = random_num;
+				colour = 3'b111;
 				writeEn = 1'b1;
 			end
 		end
@@ -139,7 +134,7 @@ module vga_handler(
 				position_x = x - 9'd70;
 				position_y = 8'd17 - y;
 				position = {position_y[2:0], position_x[2:0]};
-				colour = random_num;
+				colour = 3'b111;
 				writeEn = 1'b1;
 			end
 		end
@@ -151,7 +146,7 @@ module vga_handler(
 				position_x = x - 9'd80;
 				position_y = 8'd17 - y;
 				position = {position_y[2:0], position_x[2:0]};
-				colour = random_num;
+				colour = 3'b111;
 				writeEn = 1'b1;
 			end
 		end
@@ -163,7 +158,7 @@ module vga_handler(
 				position_x = x - 9'd90;
 				position_y = 8'd17 - y;
 				position = {position_y[2:0], position_x[2:0]};
-				colour = random_num;
+				colour = 3'b111;
 				writeEn = 1'b1;
 			end
 		end
@@ -171,6 +166,7 @@ module vga_handler(
 		if (game_state == START) begin
 			writeEn = 1'b1;
 
+			// "press enter to start", clear out after START state
 			// P
 			if (((x >= 9'd29) && (x <= 9'd37)) && ((y >= 8'd20) && (y <= 8'd27))) begin
 				letter = 6'd15;
@@ -373,9 +369,9 @@ module vga_handler(
 						position_x = x - 9'd25;
 						position_y = 8'd197 - y;
 						position = {position_y[2:0], position_x[2:0]};
-						if (mask[letter[5:0]])
+						if ((guessed_mask[letter[5:0]]) || (game_state > INGAME))
 							colour = 3'b111;
-							writeEn = 1'b1;
+						writeEn = 1'b1;
 					end
 				end
 				// Dash
@@ -400,9 +396,9 @@ module vga_handler(
 						position_x = x - 9'd55;
 						position_y = 8'd197 - y;
 						position = {position_y[2:0], position_x[2:0]};
-						if (mask[letter[5:0]])
+						if ((guessed_mask[letter[5:0]]) || (game_state > INGAME))
 							colour = 3'b111;
-							writeEn = 1'b1;
+						writeEn = 1'b1;
 					end
 				end
 				// Dash
@@ -427,9 +423,9 @@ module vga_handler(
 						position_x = x - 9'd85;
 						position_y = 8'd197 - y;
 						position = {position_y[2:0], position_x[2:0]};
-						if (mask[letter[5:0]])
+						if ((guessed_mask[letter[5:0]]) || (game_state > INGAME))
 							colour = 3'b111;
-							writeEn = 1'b1;
+						writeEn = 1'b1;
 					end
 				end
 				// Dash
@@ -454,9 +450,9 @@ module vga_handler(
 						position_x = x - 9'd115;
 						position_y = 8'd197 - y;
 						position = {position_y[2:0], position_x[2:0]};
-						if (mask[letter[5:0]])
+						if ((guessed_mask[letter[5:0]]) || (game_state > INGAME))
 							colour = 3'b111;
-							writeEn = 1'b1;
+						writeEn = 1'b1;
 					end
 				end
 				// Dash
@@ -481,9 +477,9 @@ module vga_handler(
 						position_x = x - 9'd145;
 						position_y = 8'd197 - y;
 						position = {position_y[2:0], position_x[2:0]};
-						if (mask[letter[5:0]])
+						if ((guessed_mask[letter[5:0]]) || (game_state > INGAME))
 							colour = 3'b111;
-							writeEn = 1'b1;
+						writeEn = 1'b1;
 					end
 				end
 				// Dash
@@ -508,9 +504,9 @@ module vga_handler(
 						position_x = x - 9'd175;
 						position_y = 8'd197 - y;
 						position = {position_y[2:0], position_x[2:0]};
-						if (mask[letter[5:0]])
+						if ((guessed_mask[letter[5:0]]) || (game_state > INGAME))
 							colour = 3'b111;
-							writeEn = 1'b1;
+						writeEn = 1'b1;
 					end
 				end
 				// Dash
@@ -526,8 +522,503 @@ module vga_handler(
 				end
 			end
 
+			// vertical line
+			if ((x >= 9'd240) && (x <= 9'd245)) begin
+				letter = 6'd29;
+				colour = 3'b111;
+				writeEn = 1'b1;
+			end
+
+			// A state
+			if (((x >= 9'd249) && (x <= 9'd257)) && ((y >= 8'd10) && (y <= 8'd17))) begin
+				letter = 6'd0;
+				if (x >= 9'd250) begin
+					position_x = x - 9'd250;
+					position_y = 8'd17 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// B state
+			if (((x >= 9'd249) && (x <= 9'd257)) && ((y >= 8'd20) && (y <= 8'd27))) begin
+				letter = 6'd1;
+				if (x >= 9'd250) begin
+					position_x = x - 9'd250;
+					position_y = 8'd27 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// C state
+			if (((x >= 9'd249) && (x <= 9'd257)) && ((y >= 8'd30) && (y <= 8'd37))) begin
+				letter = 6'd2;
+				if (x >= 9'd250) begin
+					position_x = x - 9'd250;
+					position_y = 8'd37 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// D state
+			if (((x >= 9'd249) && (x <= 9'd257)) && ((y >= 8'd40) && (y <= 8'd47))) begin
+				letter = 6'd3;
+				if (x >= 9'd250) begin
+					position_x = x - 9'd250;
+					position_y = 8'd47 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// E state
+			if (((x >= 9'd249) && (x <= 9'd257)) && ((y >= 8'd50) && (y <= 8'd57))) begin
+				letter = 6'd4;
+				if (x >= 9'd250) begin
+					position_x = x - 9'd250;
+					position_y = 8'd57 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// F state
+			if (((x >= 9'd249) && (x <= 9'd257)) && ((y >= 8'd60) && (y <= 8'd67))) begin
+				letter = 6'd5;
+				if (x >= 9'd250) begin
+					position_x = x - 9'd250;
+					position_y = 8'd67 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// G state
+			if (((x >= 9'd249) && (x <= 9'd257)) && ((y >= 8'd70) && (y <= 8'd77))) begin
+				letter = 6'd6;
+				if (x >= 9'd250) begin
+					position_x = x - 9'd250;
+					position_y = 8'd77 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// H state
+			if (((x >= 9'd249) && (x <= 9'd257)) && ((y >= 8'd80) && (y <= 8'd87))) begin
+				letter = 6'd7;
+				if (x >= 9'd250) begin
+					position_x = x - 9'd250;
+					position_y = 8'd87 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// I state
+			if (((x >= 9'd249) && (x <= 9'd257)) && ((y >= 8'd90) && (y <= 8'd97))) begin
+				letter = 6'd8;
+				if (x >= 9'd250) begin
+					position_x = x - 9'd250;
+					position_y = 8'd97 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// J state
+			if (((x >= 9'd249) && (x <= 9'd257)) && ((y >= 8'd100) && (y <= 8'd107))) begin
+				letter = 6'd9;
+				if (x >= 9'd250) begin
+					position_x = x - 9'd250;
+					position_y = 8'd107 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// K state
+			if (((x >= 9'd249) && (x <= 9'd257)) && ((y >= 8'd110) && (y <= 8'd117))) begin
+				letter = 6'd10;
+				if (x >= 9'd250) begin
+					position_x = x - 9'd250;
+					position_y = 8'd117 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// L state
+			if (((x >= 9'd249) && (x <= 9'd257)) && ((y >= 8'd120) && (y <= 8'd127))) begin
+				letter = 6'd11;
+				if (x >= 9'd250) begin
+					position_x = x - 9'd250;
+					position_y = 8'd127 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// M state
+			if (((x >= 9'd249) && (x <= 9'd257)) && ((y >= 8'd130) && (y <= 8'd137))) begin
+				letter = 6'd12;
+				if (x >= 9'd250) begin
+					position_x = x - 9'd250;
+					position_y = 8'd137 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// N state
+			if (((x >= 9'd269) && (x <= 9'd277)) && ((y >= 8'd10) && (y <= 8'd17))) begin
+				letter = 6'd13;
+				if (x >= 9'd270) begin
+					position_x = x - 9'd270;
+					position_y = 8'd17 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// O state
+			if (((x >= 9'd269) && (x <= 9'd277)) && ((y >= 8'd20) && (y <= 8'd27))) begin
+				letter = 6'd14;
+				if (x >= 9'd270) begin
+					position_x = x - 9'd270;
+					position_y = 8'd27 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// P state
+			if (((x >= 9'd269) && (x <= 9'd277)) && ((y >= 8'd30) && (y <= 8'd37))) begin
+				letter = 6'd15;
+				if (x >= 9'd270) begin
+					position_x = x - 9'd270;
+					position_y = 8'd37 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// Q state
+			if (((x >= 9'd269) && (x <= 9'd277)) && ((y >= 8'd40) && (y <= 8'd47))) begin
+				letter = 6'd16;
+				if (x >= 9'd270) begin
+					position_x = x - 9'd270;
+					position_y = 8'd47 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// R state
+			if (((x >= 9'd269) && (x <= 9'd277)) && ((y >= 8'd50) && (y <= 8'd57))) begin
+				letter = 6'd17;
+				if (x >= 9'd270) begin
+					position_x = x - 9'd270;
+					position_y = 8'd57 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// S state
+			if (((x >= 9'd269) && (x <= 9'd277)) && ((y >= 8'd60) && (y <= 8'd67))) begin
+				letter = 6'd18;
+				if (x >= 9'd270) begin
+					position_x = x - 9'd270;
+					position_y = 8'd67 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// T state
+			if (((x >= 9'd269) && (x <= 9'd277)) && ((y >= 8'd70) && (y <= 8'd77))) begin
+				letter = 6'd19;
+				if (x >= 9'd270) begin
+					position_x = x - 9'd270;
+					position_y = 8'd77 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// U state
+			if (((x >= 9'd269) && (x <= 9'd277)) && ((y >= 8'd80) && (y <= 8'd87))) begin
+				letter = 6'd20;
+				if (x >= 9'd270) begin
+					position_x = x - 9'd270;
+					position_y = 8'd87 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// V state
+			if (((x >= 9'd269) && (x <= 9'd277)) && ((y >= 8'd90) && (y <= 8'd97))) begin
+				letter = 6'd21;
+				if (x >= 9'd270) begin
+					position_x = x - 9'd270;
+					position_y = 8'd97 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// W state
+			if (((x >= 9'd269) && (x <= 9'd277)) && ((y >= 8'd100) && (y <= 8'd107))) begin
+				letter = 6'd22;
+				if (x >= 9'd270) begin
+					position_x = x - 9'd270;
+					position_y = 8'd107 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// X state
+			if (((x >= 9'd269) && (x <= 9'd277)) && ((y >= 8'd110) && (y <= 8'd117))) begin
+				letter = 6'd23;
+				if (x >= 9'd270) begin
+					position_x = x - 9'd270;
+					position_y = 8'd117 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// Y state
+			if (((x >= 9'd269) && (x <= 9'd277)) && ((y >= 8'd120) && (y <= 8'd127))) begin
+				letter = 6'd24;
+				if (x >= 9'd270) begin
+					position_x = x - 9'd270;
+					position_y = 8'd127 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
+			// Z state
+			if (((x >= 9'd269) && (x <= 9'd277)) && ((y >= 8'd130) && (y <= 8'd137))) begin
+				letter = 6'd25;
+				if (x >= 9'd270) begin
+					position_x = x - 9'd270;
+					position_y = 8'd137 - y;
+					position = {position_y[2:0], position_x[2:0]};
+					if (guessed_mask[letter[5:0]])
+						if (mask[letter[5:0])
+							colour = 3'b010;
+						else
+							colour = 3'b100;
+					else
+						colour = 3'b010;
+					writeEn = 1'b1;
+				end
+			end
+
 			// The poor man
 			if ((x >= 9'd99) && (x <= 9'd107)) begin
+				//Cross or check over the head
+				if ((y >= 8'd80) && (y <= 8'd87)) begin
+					if (guessed_mask == 26'd0)
+						letter = 6'd30;
+					else 
+						if (wrong) begin
+							letter = 6'd27;
+							colour = 3'b010;
+						end
+						else begin
+							letter = 6'd28;
+							colour = 3'b100;
+						end
+					if (x >= 9'd100) begin
+						position_x = x - 9'd100;
+						position_y = 8'd87 - y;
+						position = {position_y[2:0], position_x[2:0]};
+						writeEn = 1'b1;
+					end
+				end
 				// Head
 				if ((y >= 8'd92) && (y <= 8'd99)) begin
 					letter = 6'd29;
@@ -591,18 +1082,6 @@ module vga_handler(
 			end
 
 			if (game_state == WINGAME) begin
-				// Check over the head of the poor man
-				if (((x >= 9'd99) && (x <= 9'd107)) && ((y >= 8'd80) && (y <= 8'd87))) begin
-					letter = 6'd27;
-					if (x >= 9'd100) begin
-						position_x = x - 9'd100;
-						position_y = 8'd87 - y;
-						position = {position_y[2:0], position_x[2:0]};
-						colour = 3'b010;
-						writeEn = 1'b1;
-					end
-				end
-
 				// W
 				if (((x >= 9'd109) && (x <= 9'd117)) && ((y >= 8'd110) && (y <= 8'd117))) begin
 					letter = 6'd22;
@@ -641,18 +1120,6 @@ module vga_handler(
 			end
 
 			if (game_state == LOSTGAME) begin
-				// Cross over the head of the poor man
-				if (((x >= 9'd99) && (x <= 9'd107)) && ((y >= 8'd80) && (y <= 8'd87))) begin
-					letter = 6'd28;
-					if (x >= 9'd100) begin
-						position_x = x - 9'd100;
-						position_y = 8'd87 - y;
-						position = {position_y[2:0], position_x[2:0]};
-						colour = 3'b100;
-						writeEn = 1'b1;
-					end
-				end
-
 				// L
 				if (((x >= 9'd109) && (x <= 9'd117)) && ((y >= 8'd110) && (y <= 8'd117))) begin
 					letter = 6'd11;

@@ -17,6 +17,7 @@ module hangman(
 	wire [25:0] mask, guessed_mask;
 	wire [4:0] pressedLetter;
 	wire [1:0] game_state;
+	wire wrong;
 	wire [3:0] wrong_time;
 	assign clk = CLOCK_50;
 	assign reset = ~KEY[0];
@@ -53,6 +54,7 @@ module hangman(
 
 		.guessed_mask(guessed_mask[25:0]),
 		.game_state(game_state[1:0]),
+		.wrong(wrong),
 		.wrong_time(wrong_time[3:0])
 	);
 
@@ -62,7 +64,9 @@ module hangman(
 
 		.game_state(game_state[1:0]),
 		.word(word[29:0]),
-		.mask(guessed_mask[25:0]),
+		.mask(mask[25:0]),
+		.guessed_mask(guessed_mask[25:0]),
+		.wrong(wrong),
 		.wrong_time(wrong_time[3:0]),
 		
 		.VGA_CLK(VGA_CLK),
