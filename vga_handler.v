@@ -9,7 +9,7 @@ module vga_handler(
 	output [9:0] VGA_R, VGA_G, VGA_B
 );
 
-	reg [2:0] colour, colour_in;
+	reg [2:0] colour, colour_in, random_num;
 	reg [8:0] x, x_in, position_x;
 	reg [7:0] y, y_in, position_y;
 	reg [5:0] position;
@@ -64,6 +64,13 @@ module vga_handler(
 		end
 	end
 
+	always @(posedge clk) begin
+		if (reset)
+			random_num <= {x[0], 1'b1, y[1]};
+		else
+			random_num <= random_num + 1;
+	end
+
 	localparam START	= 2'd0,
 			   INGAME	= 2'd1,
 			   WINGAME	= 2'd2,
@@ -76,8 +83,94 @@ module vga_handler(
 		position_y = 8'd0;
 		position = 6'd0;
 		writeEn = 1'b0;
+
+		// H
+		if (((x >= 9'd29) && (x <= 9'd37)) && ((y >= 8'd10) && (y <= 8'd17))) begin
+			letter = 6'd7;
+			if (x >= 9'd30) begin
+				position_x = x - 9'd30;
+				position_y = 8'd17 - y;
+				position = {position_y[2:0], position_x[2:0]};
+				colour = random_num;
+				writeEn = 1'b1;
+			end
+		end
+
+		// A
+		if (((x >= 9'd39) && (x <= 9'd47)) && ((y >= 8'd10) && (y <= 8'd17))) begin
+			letter = 6'd0;
+			if (x >= 9'd40) begin
+				position_x = x - 9'd40;
+				position_y = 8'd17 - y;
+				position = {position_y[2:0], position_x[2:0]};
+				colour = random_num;
+				writeEn = 1'b1;
+			end
+		end
+
+		// N
+		if (((x >= 9'd49) && (x <= 9'd57)) && ((y >= 8'd10) && (y <= 8'd17))) begin
+			letter = 6'd13;
+			if (x >= 9'd50) begin
+				position_x = x - 9'd50;
+				position_y = 8'd17 - y;
+				position = {position_y[2:0], position_x[2:0]};
+				colour = random_num;
+				writeEn = 1'b1;
+			end
+		end
+
+		// G
+		if (((x >= 9'd59) && (x <= 9'd67)) && ((y >= 8'd10) && (y <= 8'd17))) begin
+			letter = 6'd6;
+			if (x >= 9'd60) begin
+				position_x = x - 9'd60;
+				position_y = 8'd17 - y;
+				position = {position_y[2:0], position_x[2:0]};
+				colour = random_num;
+				writeEn = 1'b1;
+			end
+		end
+
+		// M
+		if (((x >= 9'd69) && (x <= 9'd77)) && ((y >= 8'd10) && (y <= 8'd17))) begin
+			letter = 6'd12;
+			if (x >= 9'd70) begin
+				position_x = x - 9'd70;
+				position_y = 8'd17 - y;
+				position = {position_y[2:0], position_x[2:0]};
+				colour = random_num;
+				writeEn = 1'b1;
+			end
+		end
+
+		// A
+		if (((x >= 9'd79) && (x <= 9'd87)) && ((y >= 8'd10) && (y <= 8'd17))) begin
+			letter = 6'd0;
+			if (x >= 9'd80) begin
+				position_x = x - 9'd80;
+				position_y = 8'd17 - y;
+				position = {position_y[2:0], position_x[2:0]};
+				colour = random_num;
+				writeEn = 1'b1;
+			end
+		end
+
+		// N
+		if (((x >= 9'd89) && (x <= 9'd97)) && ((y >= 8'd10) && (y <= 8'd17))) begin
+			letter = 6'd13;
+			if (x >= 9'd90) begin
+				position_x = x - 9'd90;
+				position_y = 8'd17 - y;
+				position = {position_y[2:0], position_x[2:0]};
+				colour = random_num;
+				writeEn = 1'b1;
+			end
+		end
+
 		if (game_state == START) begin
-			writeEn = 1'b1;	
+			writeEn = 1'b1;
+
 			// P
 			if (((x >= 9'd29) && (x <= 9'd37)) && ((y >= 8'd20) && (y <= 8'd27))) begin
 				letter = 6'd15;
@@ -88,7 +181,7 @@ module vga_handler(
 					colour = 3'b111;
 				end
 			end
-			
+
 			// R
 			if (((x >= 9'd39) && (x <= 9'd47)) && ((y >= 8'd20) && (y <= 8'd27))) begin
 				letter = 6'd17;
@@ -99,7 +192,7 @@ module vga_handler(
 					colour = 3'b111;
 				end
 			end
-			
+
 			// E
 			if (((x >= 9'd49) && (x <= 9'd57)) && ((y >= 8'd20) && (y <= 8'd27))) begin
 				letter = 6'd4;
@@ -110,7 +203,7 @@ module vga_handler(
 					colour = 3'b111;
 				end
 			end
-			
+
 			// S
 			if (((x >= 9'd59) && (x <= 9'd67)) && ((y >= 8'd20) && (y <= 8'd27))) begin
 				letter = 6'd18;
@@ -121,7 +214,7 @@ module vga_handler(
 					colour = 3'b111;
 				end
 			end
-			
+
 			// S
 			if (((x >= 9'd69) && (x <= 9'd77)) && ((y >= 8'd20) && (y <= 8'd27))) begin
 				letter = 6'd18;
@@ -132,7 +225,7 @@ module vga_handler(
 					colour = 3'b111;
 				end
 			end
-			
+
 			// E
 			if (((x >= 9'd89) && (x <= 9'd97)) && ((y >= 8'd20) && (y <= 8'd27))) begin
 				letter = 6'd4;
@@ -143,7 +236,7 @@ module vga_handler(
 					colour = 3'b111;
 				end
 			end
-			
+
 			// N
 			if (((x >= 9'd99) && (x <= 9'd107)) && ((y >= 8'd20) && (y <= 8'd27))) begin
 				letter = 6'd13;
@@ -154,7 +247,7 @@ module vga_handler(
 					colour = 3'b111;
 				end
 			end
-			
+
 			// T
 			if (((x >= 9'd109) && (x <= 9'd117)) && ((y >= 8'd20) && (y <= 8'd27))) begin
 				letter = 6'd19;
@@ -165,7 +258,7 @@ module vga_handler(
 					colour = 3'b111;
 				end
 			end
-			
+
 			// E
 			if (((x >= 9'd119) && (x <= 9'd127)) && ((y >= 8'd20) && (y <= 8'd27))) begin
 				letter = 6'd4;
@@ -176,7 +269,7 @@ module vga_handler(
 					colour = 3'b111;
 				end
 			end
-			
+
 			// R
 			if (((x >= 9'd129) && (x <= 9'd137)) && ((y >= 8'd20) && (y <= 8'd27))) begin
 				letter = 6'd17;
@@ -187,7 +280,7 @@ module vga_handler(
 					colour = 3'b111;
 				end
 			end
-			
+
 			// T
 			if (((x >= 9'd29) && (x <= 9'd37)) && ((y >= 8'd30) && (y <= 8'd37))) begin
 				letter = 6'd19;
@@ -198,7 +291,7 @@ module vga_handler(
 					colour = 3'b111;
 				end
 			end
-			
+
 			// O
 			if (((x >= 9'd39) && (x <= 9'd47)) && ((y >= 8'd30) && (y <= 8'd37))) begin
 				letter = 6'd14;
@@ -209,7 +302,7 @@ module vga_handler(
 					colour = 3'b111;
 				end
 			end
-			
+
 			// S
 			if (((x >= 9'd59) && (x <= 9'd67)) && ((y >= 8'd30) && (y <= 8'd37))) begin
 				letter = 6'd18;
@@ -220,7 +313,7 @@ module vga_handler(
 					colour = 3'b111;
 				end
 			end
-			
+
 			// T
 			if (((x >= 9'd69) && (x <= 9'd77)) && ((y >= 8'd30) && (y <= 8'd37))) begin
 				letter = 6'd19;
@@ -231,7 +324,7 @@ module vga_handler(
 					colour = 3'b111;
 				end
 			end
-			
+
 			// A
 			if (((x >= 9'd79) && (x <= 9'd87)) && ((y >= 8'd30) && (y <= 8'd37))) begin
 				letter = 6'd0;
@@ -242,7 +335,7 @@ module vga_handler(
 					colour = 3'b111;
 				end
 			end
-			
+
 			// R
 			if (((x >= 9'd89) && (x <= 9'd97)) && ((y >= 8'd30) && (y <= 8'd37))) begin
 				letter = 6'd17;
@@ -253,7 +346,7 @@ module vga_handler(
 					colour = 3'b111;
 				end
 			end
-			
+
 			// T
 			if (((x >= 9'd99) && (x <= 9'd107)) && ((y >= 8'd30) && (y <= 8'd37))) begin
 				letter = 6'd19;
@@ -265,12 +358,12 @@ module vga_handler(
 				end
 			end
 		end
-		else begin			
+		else begin
 			// Clear out the message
 			if (((x >= 9'd20) && (x <= 9'd137)) && ((y >= 8'd20) && (y <= 9'd37))) begin
 				writeEn = 1'b1;
 			end
-			
+
 			// First letter
 			if ((x >= 9'd24) && (x <= 9'd32)) begin
 				// Letter
@@ -458,7 +551,7 @@ module vga_handler(
 					end
 				end
 			end
-			
+
 			if (game_state > INGAME) begin
 				// Y
 				if (((x >= 9'd69) && (x <= 9'd77)) && ((y >= 8'd110) && (y <= 8'd117))) begin
@@ -471,7 +564,7 @@ module vga_handler(
 						writeEn = 1'b1;
 					end
 				end
-				
+
 				// O
 				if (((x >= 9'd79) && (x <= 9'd87)) && ((y >= 8'd110) && (y <= 8'd117))) begin
 					letter = 6'd14;
@@ -483,7 +576,7 @@ module vga_handler(
 						writeEn = 1'b1;
 					end
 				end
-				
+
 				// U
 				if (((x >= 9'd89) && (x <= 9'd97)) && ((y >= 8'd110) && (y <= 8'd117))) begin
 					letter = 6'd20;
@@ -496,7 +589,7 @@ module vga_handler(
 					end
 				end
 			end
-			
+
 			if (game_state == WINGAME) begin
 				// Check over the head of the poor man
 				if (((x >= 9'd99) && (x <= 9'd107)) && ((y >= 8'd80) && (y <= 8'd87))) begin
@@ -509,7 +602,7 @@ module vga_handler(
 						writeEn = 1'b1;
 					end
 				end
-				
+
 				// W
 				if (((x >= 9'd109) && (x <= 9'd117)) && ((y >= 8'd110) && (y <= 8'd117))) begin
 					letter = 6'd22;
@@ -521,7 +614,7 @@ module vga_handler(
 						writeEn = 1'b1;
 					end
 				end
-				
+
 				// I
 				if (((x >= 9'd119) && (x <= 9'd127)) && ((y >= 8'd110) && (y <= 8'd117))) begin
 					letter = 6'd8;
@@ -533,7 +626,7 @@ module vga_handler(
 						writeEn = 1'b1;
 					end
 				end
-				
+
 				// N
 				if (((x >= 9'd129) && (x <= 9'd137)) && ((y >= 8'd110) && (y <= 8'd117))) begin
 					letter = 6'd13;
@@ -546,7 +639,7 @@ module vga_handler(
 					end
 				end
 			end
-			
+
 			if (game_state == LOSTGAME) begin
 				// Cross over the head of the poor man
 				if (((x >= 9'd99) && (x <= 9'd107)) && ((y >= 8'd80) && (y <= 8'd87))) begin
@@ -559,7 +652,7 @@ module vga_handler(
 						writeEn = 1'b1;
 					end
 				end
-				
+
 				// L
 				if (((x >= 9'd109) && (x <= 9'd117)) && ((y >= 8'd110) && (y <= 8'd117))) begin
 					letter = 6'd11;
@@ -571,7 +664,7 @@ module vga_handler(
 						writeEn = 1'b1;
 					end
 				end
-				
+
 				// O
 				if (((x >= 9'd119) && (x <= 9'd127)) && ((y >= 8'd110) && (y <= 8'd117))) begin
 					letter = 6'd14;
@@ -583,7 +676,7 @@ module vga_handler(
 						writeEn = 1'b1;
 					end
 				end
-				
+
 				// S
 				if (((x >= 9'd129) && (x <= 9'd137)) && ((y >= 8'd110) && (y <= 8'd117))) begin
 					letter = 6'd18;
@@ -595,7 +688,7 @@ module vga_handler(
 						writeEn = 1'b1;
 					end
 				end
-				
+
 				// E
 				if (((x >= 9'd139) && (x <= 9'd147)) && ((y >= 8'd110) && (y <= 8'd117))) begin
 					letter = 6'd4;
