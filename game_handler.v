@@ -6,6 +6,7 @@ module game_handler(
 
 	output [25:0] guessed_mask,
 	output [1:0] game_state,
+	output wrong,
 	output reg [3:0] wrong_time
 );
 
@@ -14,7 +15,7 @@ module game_handler(
 			   WINGAME	= 2'd2,
 			   LOSTGAME	= 2'd3;
 
-	wire win, wrong;
+	wire win;
 	reg start_reset;
 	
 	always @(game_state[1:0]) begin

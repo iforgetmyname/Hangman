@@ -21,8 +21,8 @@ module game_process(
 			next_mask <= current_mask;
 			if (load) begin
 				next_mask[load_x] = 1'b1;
-				current_mask <= next_mask;
 				wrong <= (mask[load_x] == 1'b1);
+				current_mask <= next_mask;
 				win <= ((current_mask & ~mask) == ~mask);
 			end
 		end

@@ -7,9 +7,11 @@ module keyboard_handler(
 );
 
     wire [7:0] keyboardOutCode;
+	wire valid;
 
     keyboard_press_driver kDriver0(
         .CLOCK_50(clk),
+		.valid(valid),
         .makeBreak(pressed),
         .outCode(keyboardOutCode[7:0]),
 

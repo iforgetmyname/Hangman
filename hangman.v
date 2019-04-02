@@ -4,7 +4,7 @@ module hangman(
 	input [0:0] KEY,
 	input [3:0] SW,
 
-	output [9:0] LEDR,
+	output [2:0] LEDR,
 	output [6:0] HEX0,
 	output VGA_CLK, VGA_HS, VGA_VS, VGA_BLANK_N, VGA_SYNC_N,
 	output [9:0] VGA_R, VGA_G, VGA_B
@@ -12,16 +12,23 @@ module hangman(
 
 	wire clk, reset;
 	wire load;
-	wire [3:0] word_select;
+	reg [3:0] word_select;
 	wire [29:0] word;
 	wire [25:0] mask, guessed_mask;
 	wire [4:0] pressedLetter;
 	wire [1:0] game_state;
+	wire wrong;
 	wire [3:0] wrong_time;
 	assign clk = CLOCK_50;
 	assign reset = ~KEY[0];
-	assign word_select[3:0] = SW[3:0];
 
+	always @(posedge clk) begin
+		if (game_state == 2'd0)
+			word_select <= SW[3:0];
+		else
+			word_select <= word_select;
+	end
+	
 	word_ram wr0(
 		.clock(clk),
 
@@ -53,6 +60,7 @@ module hangman(
 
 		.guessed_mask(guessed_mask[25:0]),
 		.game_state(game_state[1:0]),
+		.wrong(wrong),
 		.wrong_time(wrong_time[3:0])
 	);
 
@@ -62,7 +70,9 @@ module hangman(
 
 		.game_state(game_state[1:0]),
 		.word(word[29:0]),
-		.mask(guessed_mask[25:0]),
+		.mask(mask[25:0]),
+		.load(load),
+		.guessed_mask(guessed_mask[25:0]),
 		.wrong_time(wrong_time[3:0]),
 		
 		.VGA_CLK(VGA_CLK),
@@ -81,5 +91,5 @@ module hangman(
 	);
 
 	assign LEDR[1:0] = game_state[1:0];
-	assign LEDR[9] = load;
+	assign LEDR[2] = load;
 endmodule
